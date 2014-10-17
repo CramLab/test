@@ -1,0 +1,50 @@
+macro "Measure Stack" {
+
+if (!(selectionType()==0 || selectionType==5 || selectionType==6))
+	exit("Line or Rectangle Selection Required");
+	setBatchMode(true);
+	n=nSlices;
+	getSelectionBounds(x,y,width,height);
+
+    run("Plot Profile");
+    Plot.getValues(x, y);
+    run("Clear Results");
+
+
+    close();
+
+    imageTitle = getTitle();
+    newImage(imageTitle+' kymo', '8-bit', width, n, 1);
+    selectImage(imageTitle);
+    n = nSlices;
+
+    max=0;
+    for (slice=1; slice<=n; slice++) {
+    	showProgress(slice, n);
+        setSlice(slice);
+        profile = getProfile();
+        sliceLabel = toString(slice);
+	   
+        sliceData = split(getMetadata("Label"),"\n");
+        if (sliceData.length>0) {
+            line0 = sliceData[0];
+            if (lengthOf(sliceLabel) > 0)
+                sliceLabel = sliceLabel+ " ("+ line0 + ")";
+        }
+        
+        selectImage(imageTitle+' kymo');
+	    for (i=0; i<profile.length; i++) {
+           setPixel(i,slice,round(profile[i]));
+           if (profile[i]>max) {
+    		max = profile[i];
+    	   }
+		   
+	    }
+	    selectImage(imageTitle);
+     }
+     
+     setBatchMode('exit and display');
+     print(max);
+
+
+}

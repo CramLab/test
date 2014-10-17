@@ -1,0 +1,42 @@
+macro SpSize {
+	setBatchMode(true);
+	n=nSlices;
+	getDimensions(width, height, channels, slices, frames);
+	
+	for (slice=1; slice<=n; slice++) {
+		slice_fx = 0; //first x pixel
+		slice_lx = 0; //last x pixel
+		showProgress(slice, n);
+		setSlice(slice);
+		
+		for (pxwide=0; pxwide<width; pxwide++) {
+			for (pxhigh = 0; pxhigh < height; pxhigh++) {
+				cur_px_int = getPixel(pxwide, pxhigh);
+				
+				if (cur_px_int>10) {
+					if(slice_fx>pxwide) {
+						slice_fx = pxwide;
+						setPixel(pxwide,pxhigh,255);
+					}
+
+					if(slice_lx<pxwide) {
+						slice_lx = pxwide;
+						setPixel(pxwide,pxhigh,255);
+					}
+				}
+			}
+		}
+		px_diff = slice_lx - slice_fx;
+		row = nResults();
+		setResult('slice',row,slice);
+		setResult('slice_first_px',row,slice_fx);
+		setResult('slice_last_px',row,slice_lx);
+		setResult('px_diff',row,px_diff);
+		
+		
+		
+	}
+     setBatchMode('exit and display');
+     updateResults();
+
+}
